@@ -1,18 +1,11 @@
 export default function DashboardLoading() {
   return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4 sm:px-8 py-8">
-      <div className="w-full max-w-6xl grid lg:grid-cols-[16rem_1fr] gap-6">
-        <div className="hidden lg:block h-[70vh] rounded-xl border border-base-300 bg-base-200 animate-pulse" />
-        <div className="space-y-4">
-          <div className="h-16 rounded-xl border border-base-300 bg-base-200 animate-pulse" />
-          <div className="grid sm:grid-cols-3 gap-4">
-            <div className="h-24 rounded-xl border border-base-300 bg-base-200 animate-pulse" />
-            <div className="h-24 rounded-xl border border-base-300 bg-base-200 animate-pulse" />
-            <div className="h-24 rounded-xl border border-base-300 bg-base-200 animate-pulse" />
-          </div>
-          <div className="h-48 rounded-xl border border-base-300 bg-base-200 animate-pulse" />
-          <div className="h-40 rounded-xl border border-base-300 bg-base-200 animate-pulse" />
-        </div>
+    <div className="flex h-[calc(100vh-4rem)] w-full items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <p className="text-muted text-sm font-medium animate-pulse">
+          Loading your dashboard...
+        </p>
       </div>
     </div>
   );

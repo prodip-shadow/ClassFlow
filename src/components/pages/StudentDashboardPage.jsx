@@ -8,6 +8,7 @@ import {
   HiOutlineBookmarkSquare,
   HiOutlineCheckBadge,
   HiOutlineSquares2X2,
+  HiOutlineXMark,
 } from 'react-icons/hi2';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ProfileSection } from '@/components/ProfileSection';
@@ -15,6 +16,8 @@ import { SlotCard } from '@/components/SlotCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import { api } from '@/lib/api';
+import { getGoogleCalendarUrl } from '@/lib/calendar';
+
 
 function StudentOverviewCard() {
   const ref = useRef(null);
@@ -96,6 +99,8 @@ function StudentDashboardInner({ section }) {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [lastBookedSlot, setLastBookedSlot] = useState(null);
   const reload = useCallback(async () => {
     if (!user) return;
     setLoading(true);
@@ -124,7 +129,12 @@ function StudentDashboardInner({ section }) {
     try {
       const { data } = await api.patch(`/slots/${slot._id}`);
       setBookings((prev) => [...prev, data]);
-      toast('Slot booked.', 'success');
+      setLastBookedSlot(data);
+      setShowSuccessModal(true);
+      toast('Slot booked successfully!', 'success');
+      
+      // Optional: automatically open calendar in new tab
+      // window.open(getGoogleCalendarUrl(data), '_blank');
     } catch (err) {
       setAvailable((prev) => [...prev, slot]);
       const message = err?.response?.data?.error || 'Failed to book slot.';
@@ -157,7 +167,42 @@ function StudentDashboardInner({ section }) {
   const hasActiveBooking = bookings.length > 0;
 
   return (
-    <main className="flex-1 px-4 sm:px-8 py-8 max-w-6xl w-full mx-auto">
+    <main className="flex-1 px-4 sm:px-8 py-8 max-w-6xl w-full mx-auto relative">
+      {showSuccessModal && lastBookedSlot && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-base-100 border border-base-300 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-success/10 text-success rounded-full flex items-center justify-center mx-auto mb-4">
+                <HiOutlineCheckBadge className="w-10 h-10" />
+              </div>
+              <h3 className="font-heading text-2xl mb-2">Booking Confirmed!</h3>
+              <p className="text-muted text-sm mb-6">
+                Your session with <span className="font-semibold text-base-content">{lastBookedSlot.teacherName}</span> on {lastBookedSlot.date} has been reserved.
+              </p>
+              
+              <div className="flex flex-col gap-3">
+                <a
+                  href={getGoogleCalendarUrl(lastBookedSlot)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary w-full gap-2"
+                  onClick={() => setShowSuccessModal(false)}
+                >
+                  <HiOutlineCalendarDays className="w-5 h-5" />
+                  Add to Google Calendar
+                </a>
+                <button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="btn btn-ghost w-full"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mb-8 flex items-center gap-3">
         <HiOutlineSquares2X2 className="w-7 h-7 text-primary" />
         <div>

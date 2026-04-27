@@ -7,7 +7,9 @@ export default function DashboardLayout({ children }) {
       <Navbar />
       <div className="flex flex-1">
         <Sidebar />
-        {children}
+        <main className="flex-1 w-full">
+          {children}
+        </main>
       </div>
     </div>
   );
