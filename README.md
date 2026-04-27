@@ -160,7 +160,7 @@
 <h2>🔗 Live Demo</h2>
 
 <p align="center">
-  <a href="https://classflow.vercel.app">
+  <a href="https://class-flow-26.vercel.app">
     <img src="https://img.shields.io/badge/🚀_Live_Demo-classflow.vercel.app-f97316?style=for-the-badge" alt="Live Demo" />
   </a>
 </p>
