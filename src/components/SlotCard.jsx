@@ -10,6 +10,7 @@ import {
   HiOutlineUserCircle,
   HiOutlineTrash,
 } from 'react-icons/hi2';
+import { getGoogleCalendarUrl } from '@/lib/calendar';
 
 function formatDate(date) {
   try {
@@ -122,6 +123,18 @@ export function SlotCard({
               >
                 <HiOutlineTrash className="w-4 h-4" /> Delete
               </button>
+            )}
+            {isBooked && !onDelete && (
+              <a
+                href={getGoogleCalendarUrl(slot)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-ghost btn-sm text-primary gap-2"
+                title="Add to Google Calendar"
+              >
+                <HiOutlineCalendarDays className="w-4 h-4" />
+                <span className="hidden sm:inline">Calendar</span>
+              </a>
             )}
             {onAction && actionLabel && (
               <button
