@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-body: 'Inter', sans-serif;
+  --font-heading: 'Sora', sans-serif;
+  --color-border: #2a2a2a;
+  --color-text-muted: #888888;
+  --color-card: #141414;
+}
+
+html,
+body {
+  min-height: 100%;
+  background-color: #0a0a0a;
+}
+
+body {
+  font-family: var(--font-body);
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}
+
+.btn-primary {
+  box-shadow: 0 4px 20px -4px rgba(249, 115, 22, 0.35);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 24px -4px rgba(249, 115, 22, 0.5);
+}
