@@ -14,7 +14,7 @@
 <p align="center">
   <img src="https://i.ibb.co.com/FvK7XJJ/2026-04-27-214305-hyprshot.png" alt="ClassFlow Screenshot 1" width="100%">
 </p>
-<p align="center">
+<!-- <p align="center">
   <img src="https://i.ibb.co.com/fdmLJKpw/2026-04-27-214352-hyprshot.png" alt="ClassFlow Screenshot 2" width="100%">
 </p>
 <p align="center">
@@ -22,7 +22,7 @@
 </p>
 <p align="center">
   <img src="https://i.ibb.co.com/0TdRycc/2026-04-27-214417-hyprshot.png" alt="ClassFlow Screenshot 4" width="100%">
-</p>
+</p> -->
 
 ---
 
