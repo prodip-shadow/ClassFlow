@@ -135,13 +135,6 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid date/time' }, { status: 400 });
     }
 
-    if (startMs < Date.now() - 60_000) {
-      return NextResponse.json(
-        { error: 'Cannot create a slot in the past' },
-        { status: 400 },
-      );
-    }
-
     if (endMs <= startMs) {
       return NextResponse.json(
         { error: 'End time must be after start time' },
