@@ -211,7 +211,7 @@ function TeacherDashboardInner({ section }) {
   };
 
   return (
-    <main className="flex-1 px-4 sm:px-8 py-8 max-w-6xl w-full mx-auto">
+    <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-6xl w-full mx-auto">
       <div className="mb-8 flex items-center gap-3">
         <HiOutlineSquares2X2 className="w-7 h-7 text-primary" />
         <div>
@@ -269,7 +269,7 @@ function TeacherDashboardInner({ section }) {
               </div>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
               {slots.map((slot, idx) => (
                 <SlotCard
                   key={slot._id}

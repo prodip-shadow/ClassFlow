@@ -8,7 +8,6 @@ import {
   HiOutlineBookmarkSquare,
   HiOutlineCheckBadge,
   HiOutlineSquares2X2,
-  HiOutlineXMark,
 } from 'react-icons/hi2';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ProfileSection } from '@/components/ProfileSection';
@@ -17,7 +16,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import { api } from '@/lib/api';
 import { getGoogleCalendarUrl } from '@/lib/calendar';
-
 
 function StudentOverviewCard() {
   const ref = useRef(null);
@@ -132,7 +130,7 @@ function StudentDashboardInner({ section }) {
       setLastBookedSlot(data);
       setShowSuccessModal(true);
       toast('Slot booked successfully!', 'success');
-      
+
       // Optional: automatically open calendar in new tab
       // window.open(getGoogleCalendarUrl(data), '_blank');
     } catch (err) {
@@ -167,7 +165,7 @@ function StudentDashboardInner({ section }) {
   const hasActiveBooking = bookings.length > 0;
 
   return (
-    <main className="flex-1 px-4 sm:px-8 py-8 max-w-6xl w-full mx-auto relative">
+    <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-6xl w-full mx-auto relative">
       {showSuccessModal && lastBookedSlot && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-base-100 border border-base-300 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
@@ -177,9 +175,13 @@ function StudentDashboardInner({ section }) {
               </div>
               <h3 className="font-heading text-2xl mb-2">Booking Confirmed!</h3>
               <p className="text-muted text-sm mb-6">
-                Your session with <span className="font-semibold text-base-content">{lastBookedSlot.teacherName}</span> on {lastBookedSlot.date} has been reserved.
+                Your session with{' '}
+                <span className="font-semibold text-base-content">
+                  {lastBookedSlot.teacherName}
+                </span>{' '}
+                on {lastBookedSlot.date} has been reserved.
               </p>
-              
+
               <div className="flex flex-col gap-3">
                 <a
                   href={getGoogleCalendarUrl(lastBookedSlot)}
@@ -253,7 +255,7 @@ function StudentDashboardInner({ section }) {
               </div>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
               {available.map((slot, idx) => (
                 <SlotCard
                   key={slot._id}
@@ -292,7 +294,7 @@ function StudentDashboardInner({ section }) {
               </div>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
               {bookings.map((slot, idx) => (
                 <SlotCard
                   key={slot._id}

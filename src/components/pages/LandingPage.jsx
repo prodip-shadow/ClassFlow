@@ -109,9 +109,9 @@ export function LandingPage() {
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-12 pb-20">
-      <div className="grid lg:grid-cols-2 gap-12 items-center">
-        <div ref={heroRef}>
+    <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 sm:pt-10 lg:pt-12 pb-24">
+      <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start lg:items-center">
+        <div ref={heroRef} className="order-2 lg:order-1">
           <div
             data-hero
             className="badge badge-outline border-primary text-primary gap-1 py-3 px-3 mb-5"
@@ -120,7 +120,7 @@ export function LandingPage() {
           </div>
           <h1
             data-hero
-            className="font-heading text-4xl sm:text-5xl lg:text-6xl leading-tight"
+            className="font-heading text-3xl sm:text-5xl lg:text-6xl leading-tight"
           >
             Schedule classes in
             <br />
@@ -128,12 +128,15 @@ export function LandingPage() {
           </h1>
           <p
             data-hero
-            className="mt-5 text-base sm:text-lg text-muted max-w-xl"
+            className="mt-4 sm:mt-5 text-sm sm:text-lg text-muted max-w-xl"
           >
             ClassFlow lets teachers publish bite-sized open slots and students
             book them in a single click - clean, dark, and fast.
           </p>
-          <div data-hero className="mt-7 flex flex-wrap gap-3">
+          <div
+            data-hero
+            className="mt-6 sm:mt-7 flex flex-col sm:flex-row sm:flex-wrap gap-3"
+          >
             <button
               onClick={() => {
                 setMode('register');
@@ -142,7 +145,7 @@ export function LandingPage() {
                   .getElementById('auth-card')
                   ?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="btn btn-primary"
+              className="btn btn-primary w-full sm:w-auto"
             >
               <HiOutlineAcademicCap className="w-5 h-5" />
               I&apos;m a teacher
@@ -155,14 +158,17 @@ export function LandingPage() {
                   .getElementById('auth-card')
                   ?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="btn btn-outline"
+              className="btn btn-outline w-full sm:w-auto"
             >
               <HiOutlineUserGroup className="w-5 h-5" />
               I&apos;m a student
             </button>
           </div>
 
-          <div ref={featuresRef} className="grid sm:grid-cols-3 gap-4 mt-10">
+          <div
+            ref={featuresRef}
+            className="grid sm:grid-cols-3 gap-3 sm:gap-4 mt-8 sm:mt-10"
+          >
             {[
               {
                 Icon: HiOutlineCalendarDays,
@@ -195,7 +201,11 @@ export function LandingPage() {
           </div>
         </div>
 
-        <div ref={formRef} id="auth-card">
+        <div
+          ref={formRef}
+          id="auth-card"
+          className="order-1 lg:order-2 lg:sticky lg:top-24"
+        >
           <div className="card bg-base-200 border border-base-300 shadow-2xl shadow-primary/5">
             <div className="card-body p-6 sm:p-8">
               <div className="tabs tabs-boxed bg-base-300 p-1 mb-5 self-center">
@@ -224,7 +234,10 @@ export function LandingPage() {
                   ? 'Pick up right where you left off.'
                   : 'It only takes a few seconds.'}
               </p>
-              <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+              <form
+                onSubmit={handleSubmit}
+                className="mt-4 space-y-3 sm:space-y-4"
+              >
                 {mode === 'register' && (
                   <div className="form-control">
                     <label className="label">
