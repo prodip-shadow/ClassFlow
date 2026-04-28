@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import gsap from 'gsap';
+import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 import {
+  HiOutlineArrowRight,
   HiOutlineSparkles,
   HiOutlineCalendarDays,
   HiOutlineBookmarkSquare,
@@ -18,72 +19,80 @@ import { api } from '@/lib/api';
 import { getGoogleCalendarUrl } from '@/lib/calendar';
 
 function StudentOverviewCard() {
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    gsap.fromTo(
-      ref.current.querySelectorAll('[data-overview-item]'),
-      { opacity: 0, y: 14 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.45,
-        stagger: 0.08,
-        ease: 'power2.out',
-      },
-    );
-  }, []);
-
   return (
-    <div
-      ref={ref}
-      className="card bg-gradient-to-br from-base-200 to-base-100 border border-base-300 mb-8 overflow-hidden"
-    >
+    <div className="card bg-gradient-to-br from-base-200 via-base-200 to-base-100 border border-base-300 mb-8 overflow-hidden shadow-lg shadow-black/10">
       <div className="card-body p-6 sm:p-8">
-        <div data-overview-item className="flex items-center gap-3">
-          <span className="w-10 h-10 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
-            <HiOutlineSparkles className="w-5 h-5" />
-          </span>
-          <div>
-            <h2 className="font-heading text-2xl">Student overview</h2>
-            <p className="text-muted text-sm">
-              Smart class booking experience in a single dashboard.
-            </p>
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
+              <HiOutlineSparkles className="w-5 h-5" />
+            </span>
+            <div>
+              <h2 className="font-heading text-2xl">Student overview</h2>
+              <p className="text-muted text-sm">
+                Smart class booking experience in a single dashboard.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/student/dashboard/available"
+              className="btn btn-primary gap-2"
+            >
+              Browse slots
+              <HiOutlineArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/student/dashboard/bookings"
+              className="btn btn-ghost border border-base-300 gap-2"
+            >
+              My bookings
+              <HiOutlineBookmarkSquare className="w-4 h-4" />
+            </Link>
           </div>
         </div>
 
         <div className="grid sm:grid-cols-3 gap-3 mt-5">
-          <div
-            data-overview-item
-            className="rounded-lg border border-base-300 bg-base-200/80 p-4"
+          <Link
+            href="/student/dashboard/available"
+            className="group rounded-lg border border-base-300 bg-base-200/80 p-4 text-left transition-colors duration-200 hover:border-primary/40 hover:bg-base-200 focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
             <HiOutlineCheckBadge className="w-5 h-5 text-success" />
-            <p className="font-heading mt-2">Find Open Slots</p>
+            <p className="font-heading mt-2 flex items-center gap-2">
+              Find Open Slots
+              <HiOutlineArrowRight className="w-4 h-4 opacity-0 -translate-x-1 transition-transform duration-200 group-hover:opacity-100 group-hover:translate-x-0" />
+            </p>
             <p className="text-xs text-muted mt-1">
               Explore currently available teacher slots instantly.
             </p>
-          </div>
-          <div
-            data-overview-item
-            className="rounded-lg border border-base-300 bg-base-200/80 p-4"
+          </Link>
+          <Link
+            href="/student/dashboard/bookings"
+            className="group rounded-lg border border-base-300 bg-base-200/80 p-4 text-left transition-colors duration-200 hover:border-primary/40 hover:bg-base-200 focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
             <HiOutlineBookmarkSquare className="w-5 h-5 text-primary" />
-            <p className="font-heading mt-2">Book in One Click</p>
+            <p className="font-heading mt-2 flex items-center gap-2">
+              Book in One Click
+              <HiOutlineArrowRight className="w-4 h-4 opacity-0 -translate-x-1 transition-transform duration-200 group-hover:opacity-100 group-hover:translate-x-0" />
+            </p>
             <p className="text-xs text-muted mt-1">
               Reserve a slot quickly and keep track from bookings.
             </p>
-          </div>
-          <div
-            data-overview-item
-            className="rounded-lg border border-base-300 bg-base-200/80 p-4"
+          </Link>
+          <Link
+            href="/student/dashboard/bookings"
+            className="group rounded-lg border border-base-300 bg-base-200/80 p-4 text-left transition-colors duration-200 hover:border-warning/40 hover:bg-base-200 focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
             <HiOutlineCalendarDays className="w-5 h-5 text-warning" />
-            <p className="font-heading mt-2">Stay Organized</p>
+            <p className="font-heading mt-2 flex items-center gap-2">
+              Stay Organized
+              <HiOutlineArrowRight className="w-4 h-4 opacity-0 -translate-x-1 transition-transform duration-200 group-hover:opacity-100 group-hover:translate-x-0" />
+            </p>
             <p className="text-xs text-muted mt-1">
               Manage upcoming class times with clarity and focus.
             </p>
-          </div>
+          </Link>
         </div>
       </div>
     </div>
@@ -97,6 +106,9 @@ function StudentDashboardInner({ section }) {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState(null);
+  const [selectedBookingSlot, setSelectedBookingSlot] = useState(null);
+  const [bookingNotes, setBookingNotes] = useState('');
+  const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lastBookedSlot, setLastBookedSlot] = useState(null);
   const reload = useCallback(async () => {
@@ -120,12 +132,30 @@ function StudentDashboardInner({ section }) {
     reload();
   }, [reload, user]);
 
-  const handleBook = async (slot) => {
-    if (!user) return;
+  const openBookingModal = (slot) => {
+    if (busyId || bookingSubmitting) return;
+    setBookingNotes('');
+    setSelectedBookingSlot(slot);
+  };
+
+  const closeBookingModal = () => {
+    if (bookingSubmitting) return;
+    setSelectedBookingSlot(null);
+    setBookingNotes('');
+  };
+
+  const handleBook = async () => {
+    if (!user || !selectedBookingSlot) return;
+    const slot = selectedBookingSlot;
+    setBookingSubmitting(true);
     setBusyId(slot._id);
     setAvailable((prev) => prev.filter((s) => s._id !== slot._id));
+    setSelectedBookingSlot(null);
+
     try {
-      const { data } = await api.patch(`/slots/${slot._id}`);
+      const { data } = await api.patch(`/slots/${slot._id}`, {
+        studentNotes: bookingNotes,
+      });
       setBookings((prev) => [...prev, data]);
       setLastBookedSlot(data);
       setShowSuccessModal(true);
@@ -139,6 +169,8 @@ function StudentDashboardInner({ section }) {
       toast(message, 'error');
     } finally {
       setBusyId(null);
+      setBookingSubmitting(false);
+      setBookingNotes('');
     }
   };
 
@@ -166,6 +198,67 @@ function StudentDashboardInner({ section }) {
 
   return (
     <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-6xl w-full mx-auto relative">
+      {selectedBookingSlot && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-base-100 border border-base-300 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+            <div className="p-6">
+              <h3 className="font-heading text-2xl mb-2">Add booking notes</h3>
+              <p className="text-sm text-muted mb-4">
+                Tell your teacher what you want to discuss. These notes will be
+                attached to the booking and visible on the meeting page.
+              </p>
+
+              <div className="rounded-xl border border-base-300 bg-base-200/70 p-4 mb-4">
+                <p className="font-semibold">{selectedBookingSlot.title}</p>
+                <p className="text-sm text-muted">
+                  {selectedBookingSlot.date} · {selectedBookingSlot.startTime} -{' '}
+                  {selectedBookingSlot.endTime}
+                </p>
+              </div>
+
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text">Your notes</span>
+                </label>
+                <textarea
+                  value={bookingNotes}
+                  onChange={(e) => setBookingNotes(e.target.value)}
+                  placeholder="Example: need help with chapter 5, mock exam prep, admission questions"
+                  className="textarea textarea-bordered bg-base-300 border-base-300 focus:border-primary min-h-28"
+                  data-testid="booking-notes"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 mt-5 justify-end">
+                <button
+                  type="button"
+                  onClick={closeBookingModal}
+                  className="btn btn-ghost"
+                  disabled={bookingSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBook}
+                  className="btn btn-primary gap-2"
+                  disabled={bookingSubmitting}
+                >
+                  {bookingSubmitting ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm" />
+                      Booking...
+                    </>
+                  ) : (
+                    'Confirm booking'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showSuccessModal && lastBookedSlot && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-base-100 border border-base-300 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
@@ -192,6 +285,27 @@ function StudentDashboardInner({ section }) {
                 >
                   <HiOutlineCalendarDays className="w-5 h-5" />
                   Add to Google Calendar
+                </a>
+                <a
+                  href={
+                    lastBookedSlot.meetLink ||
+                    lastBookedSlot.calendarHtmlLink ||
+                    `/meet/${lastBookedSlot._id}`
+                  }
+                  target={
+                    lastBookedSlot.meetLink || lastBookedSlot.calendarHtmlLink
+                      ? '_blank'
+                      : undefined
+                  }
+                  rel={
+                    lastBookedSlot.meetLink || lastBookedSlot.calendarHtmlLink
+                      ? 'noopener noreferrer'
+                      : undefined
+                  }
+                  className="btn btn-ghost w-full gap-2"
+                  onClick={() => setShowSuccessModal(false)}
+                >
+                  Join meeting
                 </a>
                 <button
                   onClick={() => setShowSuccessModal(false)}
@@ -262,7 +376,7 @@ function StudentDashboardInner({ section }) {
                   slot={slot}
                   index={idx}
                   actionLabel="Book slot"
-                  onAction={() => handleBook(slot)}
+                  onAction={() => openBookingModal(slot)}
                   busy={busyId === slot._id}
                   actionDisabled={hasActiveBooking}
                 />

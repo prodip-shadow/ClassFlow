@@ -56,6 +56,9 @@ export function SlotCard({
   }, [index]);
 
   const isBooked = slot.status === 'booked';
+  const joinHref =
+    slot.meetLink || slot.calendarHtmlLink || `/meet/${slot._id}`;
+  const isExternalJoin = joinHref.startsWith('http');
 
   return (
     <div
@@ -66,6 +69,9 @@ export function SlotCard({
       <div className="card-body p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
+            {slot.title && (
+              <p className="font-heading text-base-content">{slot.title}</p>
+            )}
             <div className="flex items-center gap-2 text-base-content/90">
               <HiOutlineCalendarDays className="w-4 h-4 text-primary" />
               <span className="font-semibold">{formatDate(slot.date)}</span>
@@ -76,6 +82,9 @@ export function SlotCard({
                 {slot.startTime} - {slot.endTime}
               </span>
             </div>
+            {slot.description && (
+              <p className="text-sm text-muted pt-1">{slot.description}</p>
+            )}
           </div>
           <div
             className={`badge ${isBooked ? 'badge-error' : 'badge-success'} gap-1 font-semibold`}
@@ -97,11 +106,33 @@ export function SlotCard({
           <span className="font-medium">{slot.teacherName}</span>
         </div>
 
+        {slot.prepNotes && (
+          <div className="mt-3 rounded-lg border border-base-300 bg-base-300/40 p-3 text-sm">
+            <p className="text-xs uppercase tracking-wide text-muted mb-1">
+              Preparation notes
+            </p>
+            <p className="text-base-content/90 whitespace-pre-wrap">
+              {slot.prepNotes}
+            </p>
+          </div>
+        )}
+
         {showBookedBy && slot.bookedByName && (
           <div className="flex items-center gap-2 text-sm">
             <HiOutlineUserCircle className="w-4 h-4 text-muted" />
             <span className="text-muted">Booked by:</span>
             <span className="font-medium">{slot.bookedByName}</span>
+          </div>
+        )}
+
+        {slot.studentNotes && (
+          <div className="mt-3 rounded-lg border border-base-300 bg-base-300/40 p-3 text-sm">
+            <p className="text-xs uppercase tracking-wide text-muted mb-1">
+              Student notes
+            </p>
+            <p className="text-base-content/90 whitespace-pre-wrap">
+              {slot.studentNotes}
+            </p>
           </div>
         )}
 
@@ -113,6 +144,18 @@ export function SlotCard({
 
         {(onAction || onDelete) && (
           <div className="card-actions justify-end mt-4 gap-2">
+            {isBooked && (
+              <a
+                href={joinHref}
+                target={isExternalJoin ? '_blank' : undefined}
+                rel={isExternalJoin ? 'noopener noreferrer' : undefined}
+                className="btn btn-primary btn-sm gap-2"
+                data-testid={`join-meeting-${slot._id}`}
+              >
+                <HiOutlineCalendarDays className="w-4 h-4" />
+                Join meeting
+              </a>
+            )}
             {onDelete && !isBooked && (
               <button
                 type="button"
@@ -124,7 +167,7 @@ export function SlotCard({
                 <HiOutlineTrash className="w-4 h-4" /> Delete
               </button>
             )}
-            {isBooked && !onDelete && (
+            {isBooked && (
               <a
                 href={getGoogleCalendarUrl(slot)}
                 target="_blank"

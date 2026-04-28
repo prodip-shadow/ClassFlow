@@ -6,8 +6,15 @@ import { requireSession, requireRole } from '@/lib/server/auth';
 import { checkRateLimit, getClientIp } from '@/lib/server/rate-limit';
 import { User } from '@/models/User';
 import { deleteCacheByPrefix, getCache, setCache } from '@/lib/server/cache';
+import {
+  createGoogleMeetEvent,
+  deleteGoogleMeetEvent,
+} from '@/lib/server/google-calendar';
 
 const createSlotSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional().default(''),
+  prepNotes: z.string().optional().default(''),
   date: z.string().min(1),
   startTime: z.string().regex(/^\d{2}:\d{2}$/),
   endTime: z.string().regex(/^\d{2}:\d{2}$/),
@@ -160,28 +167,60 @@ export async function POST(request) {
       );
     }
 
-    const created = await Slot.create({
+    const meetDetails = await createGoogleMeetEvent({
+      _id: 'temp',
+      title: data.title.trim(),
+      description: data.description.trim(),
+      prepNotes: data.prepNotes.trim(),
       date: data.date,
       startTime: data.startTime,
       endTime: data.endTime,
       teacherId: String(teacher._id),
       teacherName: teacher.name,
       teacherEmail: teacher.email,
-      status: 'available',
-      bookedBy: null,
-      bookedByName: null,
-      bookedByEmail: null,
-      cancellationRequested: false,
-      cancellationRequestedAt: null,
     });
+
+    let created;
+    try {
+      created = await Slot.create({
+        title: data.title.trim(),
+        description: data.description.trim(),
+        prepNotes: data.prepNotes.trim(),
+        meetLink: meetDetails.meetLink,
+        calendarEventId: meetDetails.calendarEventId,
+        calendarHtmlLink: meetDetails.calendarHtmlLink,
+        calendarId: meetDetails.calendarId,
+        date: data.date,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        teacherId: String(teacher._id),
+        teacherName: teacher.name,
+        teacherEmail: teacher.email,
+        status: 'available',
+        bookedBy: null,
+        bookedByName: null,
+        bookedByEmail: null,
+        studentNotes: '',
+        cancellationRequested: false,
+        cancellationRequestedAt: null,
+      });
+    } catch (slotError) {
+      try {
+        await deleteGoogleMeetEvent({
+          calendarEventId: meetDetails.calendarEventId,
+        });
+      } catch {
+        // ignore rollback failure
+      }
+      throw slotError;
+    }
 
     deleteCacheByPrefix('slots:');
 
     return NextResponse.json(created.toObject(), { status: 201 });
-  } catch {
-    return NextResponse.json(
-      { error: 'Failed to create slot' },
-      { status: 500 },
-    );
+  } catch (error) {
+    const message =
+      error?.message || 'Failed to create slot with Google Meet link';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

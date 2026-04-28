@@ -33,6 +33,7 @@
   <li><b>Dashboard Stats:</b> View total slots created, total booked, and total available at a glance.</li>
   <li><b>Slot Management:</b> Add new time slots with date and start time — end time auto-calculated as +15 minutes.</li>
   <li><b>Slot Rules:</b> Cannot add overlapping slots or past time slots.</li>
+  <li><b>Google Meet Links:</b> Real Meet links are created when Google Calendar API credentials are configured.</li>
   <li><b>Profile Update:</b> Update name and profile photo via ImageBB API.</li>
 </ul>
 
@@ -126,6 +127,7 @@
       <li>MongoDB URI</li>
       <li>Firebase Config Keys</li>
       <li>ImageBB API Key</li>
+      <li>Google Calendar service account email, private key, and calendar ID</li>
     </ul>
   </li>
   <li>Start the development server:

@@ -1,16 +1,32 @@
-/**
- * Generates a Google Calendar event creation URL.
- * @param {Object} slot - The slot data
- * @param {string} teacherName - The name of the teacher
- * @returns {string} The Google Calendar URL
- */
+function getMeetingUrl(slot) {
+  if (slot?.meetLink) {
+    return slot.meetLink;
+  }
+
+  if (slot?.calendarHtmlLink) {
+    return slot.calendarHtmlLink;
+  }
+
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin}/meet/${slot?._id || ''}`;
+  }
+
+  return `/meet/${slot?._id || ''}`;
+}
+
 export function getGoogleCalendarUrl(slot) {
-  const { date, startTime, endTime, teacherName } = slot;
-  
-  // Format dates: YYYYMMDDTHHmmSSZ or YYYYMMDDTHHmmSS
-  // Slot date is YYYY-MM-DD
-  // Slot startTime/endTime is HH:mm
-  
+  const {
+    _id,
+    date,
+    startTime,
+    endTime,
+    teacherName,
+    title,
+    description,
+    prepNotes,
+    studentNotes,
+  } = slot;
+
   const formatDate = (d, t) => {
     const [year, month, day] = d.split('-');
     const [hour, minute] = t.split(':');
@@ -19,10 +35,20 @@ export function getGoogleCalendarUrl(slot) {
 
   const start = formatDate(date, startTime);
   const end = formatDate(date, endTime);
-  
-  const details = `Class with ${teacherName}`;
-  const location = "ClassFlow Platform";
-  const text = `ClassFlow: ${teacherName}`;
+
+  const meetingUrl = getMeetingUrl(slot);
+  const detailsParts = [
+    title ? `Topic: ${title}` : null,
+    description ? `Description: ${description}` : null,
+    prepNotes ? `Teacher notes: ${prepNotes}` : null,
+    studentNotes ? `Student notes: ${studentNotes}` : null,
+    meetingUrl ? `Join: ${meetingUrl}` : null,
+    teacherName ? `Teacher: ${teacherName}` : null,
+  ].filter(Boolean);
+
+  const details = detailsParts.join('\n');
+  const location = meetingUrl || 'ClassFlow Platform';
+  const text = `ClassFlow: ${title || teacherName || 'Meeting'}`;
 
   const url = new URL('https://calendar.google.com/calendar/render');
   url.searchParams.append('action', 'TEMPLATE');

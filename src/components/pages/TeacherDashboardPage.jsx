@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import gsap from 'gsap';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import {
+  HiOutlineArrowRight,
   HiOutlineSparkles,
   HiOutlineCalendarDays,
   HiOutlineCheckBadge,
   HiOutlineLockClosed,
   HiOutlineSquares2X2,
+  HiOutlinePlusCircle,
 } from 'react-icons/hi2';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ProfileSection } from '@/components/ProfileSection';
@@ -18,29 +20,18 @@ import { useToast } from '@/components/Toast';
 import { api } from '@/lib/api';
 
 function StatsRow({ slots }) {
-  const ref = useRef(null);
   const total = slots.length;
   const booked = slots.filter((s) => s.status === 'booked').length;
   const available = total - booked;
 
-  useEffect(() => {
-    if (!ref.current) return;
-    gsap.fromTo(
-      ref.current.querySelectorAll('[data-stat]'),
-      { opacity: 0, y: 16 },
-      { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' },
-    );
-  }, [total, booked, available]);
-
   return (
     <div
-      ref={ref}
       className="grid grid-cols-1 sm:grid-cols-3 gap-4"
       data-testid="teacher-stats"
     >
       <div
         data-stat
-        className="stat bg-base-200 border border-base-300 rounded-2xl"
+        className="stat bg-base-200 border border-base-300 rounded-2xl transition-colors duration-200 hover:border-primary/40"
       >
         <div className="stat-figure text-primary">
           <HiOutlineCalendarDays className="w-8 h-8" />
@@ -53,7 +44,7 @@ function StatsRow({ slots }) {
       </div>
       <div
         data-stat
-        className="stat bg-base-200 border border-base-300 rounded-2xl"
+        className="stat bg-base-200 border border-base-300 rounded-2xl transition-colors duration-200 hover:border-success/40"
       >
         <div className="stat-figure text-success">
           <HiOutlineCheckBadge className="w-8 h-8" />
@@ -64,7 +55,7 @@ function StatsRow({ slots }) {
       </div>
       <div
         data-stat
-        className="stat bg-base-200 border border-base-300 rounded-2xl"
+        className="stat bg-base-200 border border-base-300 rounded-2xl transition-colors duration-200 hover:border-error/40"
       >
         <div className="stat-figure text-error">
           <HiOutlineLockClosed className="w-8 h-8" />
@@ -78,72 +69,80 @@ function StatsRow({ slots }) {
 }
 
 function TeacherOverviewCard() {
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    gsap.fromTo(
-      ref.current.querySelectorAll('[data-overview-item]'),
-      { opacity: 0, y: 14 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.45,
-        stagger: 0.08,
-        ease: 'power2.out',
-      },
-    );
-  }, []);
-
   return (
-    <div
-      ref={ref}
-      className="card bg-gradient-to-br from-base-200 to-base-100 border border-base-300 mb-8 overflow-hidden"
-    >
+    <div className="card bg-gradient-to-br from-base-200 via-base-200 to-base-100 border border-base-300 mb-8 overflow-hidden shadow-lg shadow-black/10">
       <div className="card-body p-6 sm:p-8">
-        <div data-overview-item className="flex items-center gap-3">
-          <span className="w-10 h-10 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
-            <HiOutlineSparkles className="w-5 h-5" />
-          </span>
-          <div>
-            <h2 className="font-heading text-2xl">Teacher overview</h2>
-            <p className="text-muted text-sm">
-              Publish, manage, and monitor class availability with clarity.
-            </p>
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="w-10 h-10 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
+              <HiOutlineSparkles className="w-5 h-5" />
+            </span>
+            <div>
+              <h2 className="font-heading text-2xl">Teacher overview</h2>
+              <p className="text-muted text-sm">
+                Publish, manage, and monitor class availability with clarity.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/teacher/dashboard/add"
+              className="btn btn-primary gap-2"
+            >
+              <HiOutlinePlusCircle className="w-5 h-5" />
+              Add slot
+            </Link>
+            <Link
+              href="/teacher/dashboard/slots"
+              className="btn btn-ghost border border-base-300 gap-2"
+            >
+              Manage slots
+              <HiOutlineArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
 
         <div className="grid sm:grid-cols-3 gap-3 mt-5">
-          <div
-            data-overview-item
-            className="rounded-lg border border-base-300 bg-base-200/80 p-4"
+          <Link
+            href="/teacher/dashboard/add"
+            className="group rounded-lg border border-base-300 bg-base-200/80 p-4 text-left transition-colors duration-200 hover:border-primary/40 hover:bg-base-200 focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
             <HiOutlineCalendarDays className="w-5 h-5 text-primary" />
-            <p className="font-heading mt-2">Add 15-min Slots</p>
+            <p className="font-heading mt-2 flex items-center gap-2">
+              Add 15-min Slots
+              <HiOutlineArrowRight className="w-4 h-4 opacity-0 -translate-x-1 transition-transform duration-200 group-hover:opacity-100 group-hover:translate-x-0" />
+            </p>
             <p className="text-xs text-muted mt-1">
               Create short sessions quickly with time conflict protection.
             </p>
-          </div>
-          <div
-            data-overview-item
-            className="rounded-lg border border-base-300 bg-base-200/80 p-4"
+          </Link>
+          <Link
+            href="/teacher/dashboard/slots"
+            className="group rounded-lg border border-base-300 bg-base-200/80 p-4 text-left transition-colors duration-200 hover:border-success/40 hover:bg-base-200 focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
             <HiOutlineCheckBadge className="w-5 h-5 text-success" />
-            <p className="font-heading mt-2">Track Availability</p>
+            <p className="font-heading mt-2 flex items-center gap-2">
+              Track Availability
+              <HiOutlineArrowRight className="w-4 h-4 opacity-0 -translate-x-1 transition-transform duration-200 group-hover:opacity-100 group-hover:translate-x-0" />
+            </p>
             <p className="text-xs text-muted mt-1">
               Keep your open slots organized and visible for students.
             </p>
-          </div>
-          <div
-            data-overview-item
-            className="rounded-lg border border-base-300 bg-base-200/80 p-4"
+          </Link>
+          <Link
+            href="/teacher/dashboard/slots"
+            className="group rounded-lg border border-base-300 bg-base-200/80 p-4 text-left transition-colors duration-200 hover:border-error/40 hover:bg-base-200 focus:outline-none focus:ring-2 focus:ring-primary/40"
           >
             <HiOutlineLockClosed className="w-5 h-5 text-error" />
-            <p className="font-heading mt-2">Review Booked Slots</p>
+            <p className="font-heading mt-2 flex items-center gap-2">
+              Review Booked Slots
+              <HiOutlineArrowRight className="w-4 h-4 opacity-0 -translate-x-1 transition-transform duration-200 group-hover:opacity-100 group-hover:translate-x-0" />
+            </p>
             <p className="text-xs text-muted mt-1">
               Check reserved sessions and maintain a smooth schedule.
             </p>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

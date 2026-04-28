@@ -29,6 +29,9 @@ function addMinutes(time, minutes) {
 export function AddSlotForm({ onCreated }) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [prepNotes, setPrepNotes] = useState('');
   const [date, setDate] = useState(todayISO());
   const [startTime, setStartTime] = useState('09:00');
   const [submitting, setSubmitting] = useState(false);
@@ -48,6 +51,9 @@ export function AddSlotForm({ onCreated }) {
     setSubmitting(true);
     try {
       const { data } = await api.post('/slots', {
+        title,
+        description,
+        prepNotes,
         date,
         startTime,
         endTime,
@@ -76,7 +82,48 @@ export function AddSlotForm({ onCreated }) {
         <p className="text-sm text-muted -mt-1">
           Slots are 15 minutes long. End time is calculated automatically.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+        <div className="grid grid-cols-1 gap-4 mt-2">
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Title</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="E.g. Physics revision, Admission prep"
+              className="input input-bordered bg-base-300 border-base-300 focus:border-primary"
+              data-testid="input-title"
+            />
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Description</span>
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Short details about what this slot is for"
+              className="textarea textarea-bordered bg-base-300 border-base-300 focus:border-primary min-h-24"
+              data-testid="input-description"
+            />
+          </div>
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Preparation notes</span>
+            </label>
+            <textarea
+              value={prepNotes}
+              onChange={(e) => setPrepNotes(e.target.value)}
+              placeholder="Notebook, pen, textbook, topic list, etc."
+              className="textarea textarea-bordered bg-base-300 border-base-300 focus:border-primary min-h-24"
+              data-testid="input-prep-notes"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
           <div className="form-control">
             <label className="label">
               <span className="label-text">Date</span>

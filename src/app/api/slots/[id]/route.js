@@ -1,16 +1,57 @@
 import { NextResponse } from 'next/server';
 import { connectMongo } from '@/lib/mongodb';
 import { Slot } from '@/models/Slot';
-import { requireRole } from '@/lib/server/auth';
+import { requireRole, requireSession } from '@/lib/server/auth';
 import { checkRateLimit, getClientIp } from '@/lib/server/rate-limit';
 import { User } from '@/models/User';
 import { deleteCacheByPrefix } from '@/lib/server/cache';
+import {
+  createGoogleMeetEvent,
+  deleteGoogleMeetEvent,
+  updateGoogleMeetEvent,
+} from '@/lib/server/google-calendar';
+
+export async function GET(request, { params }) {
+  try {
+    const { id } = await params;
+    const { session, error } = await requireSession(request);
+    if (error) return error;
+
+    await connectMongo();
+
+    const user = await User.findOne({ email: session.email }).lean();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User account not found' },
+        { status: 403 },
+      );
+    }
+
+    const slot = await Slot.findById(id).lean();
+    if (!slot) {
+      return NextResponse.json({ error: 'Slot not found' }, { status: 404 });
+    }
+
+    const isOwner = slot.teacherId === String(user._id);
+    const isBookedByUser = slot.bookedBy === String(user._id);
+
+    if (!isOwner && !isBookedByUser) {
+      return NextResponse.json({ error: 'Not allowed' }, { status: 403 });
+    }
+
+    return NextResponse.json(slot);
+  } catch {
+    return NextResponse.json({ error: 'Failed to load slot' }, { status: 500 });
+  }
+}
 
 export async function PATCH(request, { params }) {
   try {
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
     const action = typeof body?.action === 'string' ? body.action : 'book';
+    const studentNotes =
+      typeof body?.studentNotes === 'string' ? body.studentNotes : '';
     const ip = getClientIp(request);
 
     await connectMongo();
@@ -183,9 +224,18 @@ export async function PATCH(request, { params }) {
     slot.bookedBy = String(student._id);
     slot.bookedByName = student.name;
     slot.bookedByEmail = student.email;
+    slot.studentNotes = studentNotes.trim();
     slot.cancellationRequested = false;
     slot.cancellationRequestedAt = null;
     await slot.save();
+
+    if (slot.calendarEventId) {
+      try {
+        await updateGoogleMeetEvent(slot, slot.studentNotes);
+      } catch {
+        // keep booking success even if calendar sync fails
+      }
+    }
 
     deleteCacheByPrefix('slots:');
 
