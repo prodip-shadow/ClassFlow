@@ -224,3 +224,69 @@ export async function POST(request) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+export async function DELETE(request) {
+  try {
+    const { session, error } = await requireRole(request, 'teacher');
+    if (error) return error;
+
+    const ip = getClientIp(request);
+    const rl = checkRateLimit({
+      key: `slots-delete-all:${ip}:${session.email}`,
+      limit: 20,
+      windowMs: 60 * 60 * 1000,
+    });
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: 'Too many delete attempts. Try again later.' },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(rl.retryAfterSec) },
+        },
+      );
+    }
+
+    const params = new URL(request.url).searchParams;
+    const scope = params.get('scope');
+    if (scope !== 'all') {
+      return NextResponse.json(
+        { error: 'Invalid delete scope' },
+        { status: 400 },
+      );
+    }
+
+    await connectMongo();
+    const teacher = await User.findOne({ email: session.email }).lean();
+    if (!teacher || teacher.role !== 'teacher') {
+      return NextResponse.json(
+        { error: 'Teacher account not found' },
+        { status: 403 },
+      );
+    }
+
+    const slots = await Slot.find({ teacherId: String(teacher._id) }).lean();
+
+    const calendarDeleteResults = await Promise.allSettled(
+      slots.map((slot) => deleteGoogleMeetEvent(slot)),
+    );
+
+    const deletedCount = slots.length;
+    const failedCalendarDeletes = calendarDeleteResults.filter(
+      (result) => result.status === 'rejected',
+    ).length;
+
+    await Slot.deleteMany({ teacherId: String(teacher._id) });
+    deleteCacheByPrefix('slots:');
+
+    return NextResponse.json({
+      ok: true,
+      deletedCount,
+      failedCalendarDeletes,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error?.message || 'Failed to delete all slots' },
+      { status: 500 },
+    );
+  }
+}

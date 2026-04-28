@@ -120,6 +120,76 @@ export async function PATCH(request, { params }) {
       return NextResponse.json(slot.toObject());
     }
 
+    if (action === 'complete') {
+      const { session, error } = await requireRole(request, 'teacher');
+      if (error) return error;
+
+      const rl = checkRateLimit({
+        key: `slots-complete:${ip}:${session.email}`,
+        limit: 120,
+        windowMs: 60 * 60 * 1000,
+      });
+
+      if (!rl.success) {
+        return NextResponse.json(
+          { error: 'Too many attempts. Try again later.' },
+          {
+            status: 429,
+            headers: { 'Retry-After': String(rl.retryAfterSec) },
+          },
+        );
+      }
+
+      const teacher = await User.findOne({ email: session.email }).lean();
+      if (!teacher || teacher.role !== 'teacher') {
+        return NextResponse.json(
+          { error: 'Teacher account not found' },
+          { status: 403 },
+        );
+      }
+
+      const slot = await Slot.findById(id);
+      if (!slot) {
+        return NextResponse.json({ error: 'Slot not found' }, { status: 404 });
+      }
+
+      if (slot.teacherId !== String(teacher._id)) {
+        return NextResponse.json({ error: 'Not your slot' }, { status: 403 });
+      }
+
+      if (slot.status !== 'booked') {
+        return NextResponse.json(
+          { error: 'Only booked meetings can be completed' },
+          { status: 400 },
+        );
+      }
+
+      try {
+        await deleteGoogleMeetEvent(slot);
+      } catch (deleteError) {
+        return NextResponse.json(
+          {
+            error:
+              deleteError?.message ||
+              'Failed to delete the meeting from calendar',
+          },
+          { status: 500 },
+        );
+      }
+
+      slot.status = 'completed';
+      slot.completedAt = new Date();
+      slot.meetLink = '';
+      slot.calendarEventId = '';
+      slot.calendarHtmlLink = '';
+      slot.calendarId = '';
+      await slot.save();
+
+      deleteCacheByPrefix('slots:');
+
+      return NextResponse.json(slot.toObject());
+    }
+
     const { session, error } = await requireRole(request, 'student');
     if (error) return error;
 
@@ -213,9 +283,9 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ error: 'Slot not found' }, { status: 404 });
     }
 
-    if (slot.status === 'booked') {
+    if (slot.status !== 'available') {
       return NextResponse.json(
-        { error: 'Slot already booked' },
+        { error: 'Slot is not available' },
         { status: 409 },
       );
     }
@@ -269,11 +339,10 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'Not your slot' }, { status: 403 });
     }
 
-    if (slot.status === 'booked') {
-      return NextResponse.json(
-        { error: 'Booked slot cannot be deleted directly' },
-        { status: 409 },
-      );
+    try {
+      await deleteGoogleMeetEvent(slot);
+    } catch {
+      // keep the slot deletion moving even if calendar cleanup fails
     }
 
     await slot.deleteOne();

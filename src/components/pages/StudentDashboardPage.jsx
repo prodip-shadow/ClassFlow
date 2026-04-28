@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo, memo } from 'react';
 import {
   HiOutlineArrowRight,
   HiOutlineSparkles,
@@ -17,10 +17,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import { api } from '@/lib/api';
 import { getGoogleCalendarUrl } from '@/lib/calendar';
+import { withCache, cacheClear } from '@/lib/cache';
 
-function StudentOverviewCard() {
+function StudentOverviewCardComponent({ available = [], bookings = [] }) {
   return (
-    <div className="card bg-gradient-to-br from-base-200 via-base-200 to-base-100 border border-base-300 mb-8 overflow-hidden shadow-lg shadow-black/10">
+    <div className="card bg-base-200 border border-base-300 mb-8 shadow">
       <div className="card-body p-6 sm:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="flex items-center gap-3">
@@ -56,12 +57,12 @@ function StudentOverviewCard() {
         <div className="grid sm:grid-cols-3 gap-3 mt-5">
           <Link
             href="/student/dashboard/available"
-            className="group rounded-lg border border-base-300 bg-base-200/80 p-4 text-left transition-colors duration-200 hover:border-primary/40 hover:bg-base-200 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="group rounded-lg border border-base-300 bg-base-200/80 p-4 text-left hover:border-primary/40 hover:bg-base-200 transition"
           >
             <HiOutlineCheckBadge className="w-5 h-5 text-success" />
             <p className="font-heading mt-2 flex items-center gap-2">
               Find Open Slots
-              <HiOutlineArrowRight className="w-4 h-4 opacity-0 -translate-x-1 transition-transform duration-200 group-hover:opacity-100 group-hover:translate-x-0" />
+              <HiOutlineArrowRight className="w-4 h-4 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition" />
             </p>
             <p className="text-xs text-muted mt-1">
               Explore currently available teacher slots instantly.
@@ -69,12 +70,12 @@ function StudentOverviewCard() {
           </Link>
           <Link
             href="/student/dashboard/bookings"
-            className="group rounded-lg border border-base-300 bg-base-200/80 p-4 text-left transition-colors duration-200 hover:border-primary/40 hover:bg-base-200 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="group rounded-lg border border-base-300 bg-base-200/80 p-4 text-left hover:border-primary/40 hover:bg-base-200 transition"
           >
             <HiOutlineBookmarkSquare className="w-5 h-5 text-primary" />
             <p className="font-heading mt-2 flex items-center gap-2">
               Book in One Click
-              <HiOutlineArrowRight className="w-4 h-4 opacity-0 -translate-x-1 transition-transform duration-200 group-hover:opacity-100 group-hover:translate-x-0" />
+              <HiOutlineArrowRight className="w-4 h-4 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition" />
             </p>
             <p className="text-xs text-muted mt-1">
               Reserve a slot quickly and keep track from bookings.
@@ -82,69 +83,144 @@ function StudentOverviewCard() {
           </Link>
           <Link
             href="/student/dashboard/bookings"
-            className="group rounded-lg border border-base-300 bg-base-200/80 p-4 text-left transition-colors duration-200 hover:border-warning/40 hover:bg-base-200 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="group rounded-lg border border-base-300 bg-base-200/80 p-4 text-left hover:border-warning/40 hover:bg-base-200 transition"
           >
             <HiOutlineCalendarDays className="w-5 h-5 text-warning" />
             <p className="font-heading mt-2 flex items-center gap-2">
               Stay Organized
-              <HiOutlineArrowRight className="w-4 h-4 opacity-0 -translate-x-1 transition-transform duration-200 group-hover:opacity-100 group-hover:translate-x-0" />
+              <HiOutlineArrowRight className="w-4 h-4 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition" />
             </p>
             <p className="text-xs text-muted mt-1">
               Manage upcoming class times with clarity and focus.
             </p>
           </Link>
         </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-6 border-t border-base-300/50">
+          <div className="stat bg-base-100 rounded-lg p-4">
+            <div className="stat-figure text-primary">
+              <HiOutlineBookmarkSquare className="w-6 h-6" />
+            </div>
+            <div className="stat-title text-xs text-muted">My Bookings</div>
+            <div className="stat-value font-heading text-xl">
+              {bookings.length}
+            </div>
+            <div className="stat-desc text-xs text-muted mt-1">
+              {bookings.length === 0
+                ? 'No bookings'
+                : `${bookings.length} session${bookings.length !== 1 ? 's' : ''}`}
+            </div>
+          </div>
+
+          <div className="stat bg-base-100 rounded-lg p-4">
+            <div className="stat-figure text-success">
+              <HiOutlineCheckBadge className="w-6 h-6" />
+            </div>
+            <div className="stat-title text-xs text-muted">Open Slots</div>
+            <div className="stat-value font-heading text-xl text-success">
+              {available.length}
+            </div>
+            <div className="stat-desc text-xs text-muted mt-1">
+              {available.length === 0 ? 'None available' : 'Ready to book'}
+            </div>
+          </div>
+
+          <div className="stat bg-base-100 rounded-lg p-4">
+            <div className="stat-figure text-warning">
+              <HiOutlineCalendarDays className="w-6 h-6" />
+            </div>
+            <div className="stat-title text-xs text-muted">Next Class</div>
+            <div className="stat-value font-heading text-sm text-warning">
+              {bookings.length > 0 ? bookings[0]?.date?.slice(5) : '—'}
+            </div>
+            <div className="stat-desc text-xs text-muted mt-1">
+              {bookings.length > 0
+                ? `${bookings[0]?.startTime}`
+                : 'Schedule soon'}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+const StudentOverviewCard = memo(StudentOverviewCardComponent);
 
 function StudentDashboardInner({ section }) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [available, setAvailable] = useState([]);
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [busyId, setBusyId] = useState(null);
   const [selectedBookingSlot, setSelectedBookingSlot] = useState(null);
   const [bookingNotes, setBookingNotes] = useState('');
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lastBookedSlot, setLastBookedSlot] = useState(null);
-  const reload = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const [availResp, mineResp] = await Promise.all([
-        api.get('/slots', { params: { status: 'available' } }),
-        api.get('/slots', { params: { bookedBy: 'me' } }),
-      ]);
-      setAvailable(availResp.data);
-      setBookings(mineResp.data);
-    } catch {
-      toast('Failed to load slots.', 'error');
-    } finally {
-      setLoading(false);
-    }
-  }, [user, toast]);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
+  const needsData =
+    section === 'available' || section === 'bookings' || section === 'overview';
+
+  // Memoized computed values
+  const hasActiveBooking = useMemo(
+    () => bookings.length > 0,
+    [bookings.length],
+  );
+  const showAvailable = useMemo(() => section === 'available', [section]);
+  const showBookings = useMemo(() => section === 'bookings', [section]);
+
+  // Lazy load data only when needed
   useEffect(() => {
-    reload();
-  }, [reload, user]);
+    if (!user || !needsData || dataLoaded) return;
 
-  const openBookingModal = (slot) => {
-    if (busyId || bookingSubmitting) return;
-    setBookingNotes('');
-    setSelectedBookingSlot(slot);
-  };
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [availResp, mineResp] = await Promise.all([
+          withCache(`available-slots-${user._id}`, () =>
+            api
+              .get('/slots', { params: { status: 'available' } })
+              .then((r) => r.data),
+          ),
+          withCache(`my-bookings-${user._id}`, () =>
+            api
+              .get('/slots', { params: { bookedBy: 'me' } })
+              .then((r) => r.data),
+          ),
+        ]);
+        setAvailable(availResp);
+        setBookings(mineResp);
+        setDataLoaded(true);
+      } catch {
+        toast('Failed to load slots.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const closeBookingModal = () => {
+    load();
+  }, [user, needsData, dataLoaded, toast]);
+
+  // Memoized handlers
+  const openBookingModal = useCallback(
+    (slot) => {
+      if (busyId || bookingSubmitting) return;
+      setBookingNotes('');
+      setSelectedBookingSlot(slot);
+    },
+    [busyId, bookingSubmitting],
+  );
+
+  const closeBookingModal = useCallback(() => {
     if (bookingSubmitting) return;
     setSelectedBookingSlot(null);
     setBookingNotes('');
-  };
+  }, [bookingSubmitting]);
 
-  const handleBook = async () => {
+  const handleBook = useCallback(async () => {
     if (!user || !selectedBookingSlot) return;
     const slot = selectedBookingSlot;
     setBookingSubmitting(true);
@@ -160,9 +236,9 @@ function StudentDashboardInner({ section }) {
       setLastBookedSlot(data);
       setShowSuccessModal(true);
       toast('Slot booked successfully!', 'success');
-
-      // Optional: automatically open calendar in new tab
-      // window.open(getGoogleCalendarUrl(data), '_blank');
+      // Clear cache on successful booking
+      cacheClear(`available-slots-${user._id}`);
+      cacheClear(`my-bookings-${user._id}`);
     } catch (err) {
       setAvailable((prev) => [...prev, slot]);
       const message = err?.response?.data?.error || 'Failed to book slot.';
@@ -172,29 +248,28 @@ function StudentDashboardInner({ section }) {
       setBookingSubmitting(false);
       setBookingNotes('');
     }
-  };
+  }, [user, selectedBookingSlot, bookingNotes, toast]);
 
-  const handleRequestCancel = async (slot) => {
-    if (!user) return;
-    setBusyId(slot._id);
-    try {
-      const { data } = await api.patch(`/slots/${slot._id}`, {
-        action: 'request-cancel',
-      });
-      setBookings((prev) => prev.map((s) => (s._id === slot._id ? data : s)));
-      toast('Cancellation request sent to teacher.', 'success');
-    } catch (err) {
-      const message =
-        err?.response?.data?.error || 'Failed to send cancellation request.';
-      toast(message, 'error');
-    } finally {
-      setBusyId(null);
-    }
-  };
-
-  const showAvailable = section === 'available';
-  const showBookings = section === 'bookings';
-  const hasActiveBooking = bookings.length > 0;
+  const handleRequestCancel = useCallback(
+    async (slot) => {
+      if (!user) return;
+      setBusyId(slot._id);
+      try {
+        const { data } = await api.patch(`/slots/${slot._id}`, {
+          action: 'request-cancel',
+        });
+        setBookings((prev) => prev.map((s) => (s._id === slot._id ? data : s)));
+        toast('Cancellation request sent to teacher.', 'success');
+      } catch (err) {
+        const message =
+          err?.response?.data?.error || 'Failed to send cancellation request.';
+        toast(message, 'error');
+      } finally {
+        setBusyId(null);
+      }
+    },
+    [user, toast],
+  );
 
   return (
     <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-6xl w-full mx-auto relative">
@@ -331,7 +406,9 @@ function StudentDashboardInner({ section }) {
         </div>
       </div>
 
-      {section === 'overview' && <StudentOverviewCard />}
+      {section === 'overview' && (
+        <StudentOverviewCard available={available} bookings={bookings} />
+      )}
 
       {section === 'profile' && (
         <div className="mb-8">

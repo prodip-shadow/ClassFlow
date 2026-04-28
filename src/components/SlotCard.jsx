@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, memo } from 'react';
 import gsap from 'gsap';
 import {
   HiOutlineCalendarDays,
@@ -26,7 +26,7 @@ function formatDate(date) {
   }
 }
 
-export function SlotCard({
+function SlotCardComponent({
   slot,
   index = 0,
   actionLabel,
@@ -56,6 +56,7 @@ export function SlotCard({
   }, [index]);
 
   const isBooked = slot.status === 'booked';
+  const isCompleted = slot.status === 'completed';
   const joinHref =
     slot.meetLink || slot.calendarHtmlLink || `/meet/${slot._id}`;
   const isExternalJoin = joinHref.startsWith('http');
@@ -87,14 +88,16 @@ export function SlotCard({
             )}
           </div>
           <div
-            className={`badge ${isBooked ? 'badge-error' : 'badge-success'} gap-1 font-semibold`}
+            className={`badge ${isCompleted ? 'badge-neutral' : isBooked ? 'badge-error' : 'badge-success'} gap-1 font-semibold`}
           >
-            {isBooked ? (
+            {isCompleted ? (
+              <HiOutlineCheckBadge className="w-3.5 h-3.5" />
+            ) : isBooked ? (
               <HiOutlineLockClosed className="w-3.5 h-3.5" />
             ) : (
               <HiOutlineCheckBadge className="w-3.5 h-3.5" />
             )}
-            {isBooked ? 'Booked' : 'Available'}
+            {isCompleted ? 'Completed' : isBooked ? 'Booked' : 'Available'}
           </div>
         </div>
 
@@ -156,7 +159,7 @@ export function SlotCard({
                 Join meeting
               </a>
             )}
-            {onDelete && !isBooked && (
+            {onDelete && (
               <button
                 type="button"
                 onClick={onDelete}
@@ -204,3 +207,14 @@ export function SlotCard({
     </div>
   );
 }
+
+export const SlotCard = memo(SlotCardComponent, (prevProps, nextProps) => {
+  // Custom comparison: re-render only if necessary data changes
+  return (
+    prevProps.slot._id === nextProps.slot._id &&
+    prevProps.slot.status === nextProps.slot.status &&
+    prevProps.busy === nextProps.busy &&
+    prevProps.actionLabel === nextProps.actionLabel &&
+    prevProps.disableActionWhenBooked === nextProps.disableActionWhenBooked
+  );
+});

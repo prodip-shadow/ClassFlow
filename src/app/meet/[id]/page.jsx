@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import {
   HiOutlineArrowLeft,
   HiOutlineCalendarDays,
+  HiOutlineCheckBadge,
   HiOutlineClipboardDocument,
   HiOutlineClock,
   HiOutlineLink,
@@ -13,6 +14,7 @@ import {
 } from 'react-icons/hi2';
 import { api } from '@/lib/api';
 import { getGoogleCalendarUrl } from '@/lib/calendar';
+import { useAuth } from '@/contexts/AuthContext';
 
 function getJoinUrl(slotId) {
   if (typeof window !== 'undefined' && window.location?.origin) {
@@ -23,11 +25,14 @@ function getJoinUrl(slotId) {
 }
 
 export default function MeetingRoomPage({ params }) {
+  const { user } = useAuth();
   const [slot, setSlot] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const joinUrl =
-    slot?.meetLink || slot?.calendarHtmlLink || getJoinUrl(params.id);
+  const isCompleted = slot?.status === 'completed';
+  const joinUrl = isCompleted
+    ? ''
+    : slot?.meetLink || slot?.calendarHtmlLink || getJoinUrl(params.id);
 
   useEffect(() => {
     const load = async () => {
@@ -45,10 +50,23 @@ export default function MeetingRoomPage({ params }) {
   }, [params.id]);
 
   const copyLink = async () => {
+    if (!joinUrl) return;
     try {
       await navigator.clipboard.writeText(joinUrl);
     } catch {
       // ignore clipboard errors in unsupported browsers
+    }
+  };
+
+  const handleCompleteMeeting = async () => {
+    if (!slot) return;
+    try {
+      const { data } = await api.patch(`/slots/${slot._id}`, {
+        action: 'complete',
+      });
+      setSlot(data);
+    } catch (err) {
+      setError(err?.response?.data?.error || 'Failed to complete meeting.');
     }
   };
 
@@ -104,25 +122,35 @@ export default function MeetingRoomPage({ params }) {
                   <p className="text-sm uppercase tracking-wide text-muted mb-3">
                     Meeting link
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <input
-                      readOnly
-                      value={joinUrl}
-                      className="input input-bordered bg-base-300 border-base-300 flex-1"
-                    />
-                    <button
-                      type="button"
-                      onClick={copyLink}
-                      className="btn btn-primary gap-2"
-                    >
-                      <HiOutlineClipboardDocument className="w-5 h-5" />
-                      Copy link
-                    </button>
-                  </div>
-                  <p className="text-xs text-muted mt-3">
-                    This is the real Google Meet link when Google Calendar is
-                    connected. If not, it falls back to the meeting page URL.
-                  </p>
+                  {isCompleted ? (
+                    <div className="alert alert-info">
+                      <span>
+                        This meeting has been completed and deleted from the
+                        calendar.
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <input
+                          readOnly
+                          value={joinUrl}
+                          className="input input-bordered bg-base-300 border-base-300 flex-1"
+                        />
+                        <button
+                          type="button"
+                          onClick={copyLink}
+                          className="btn btn-primary gap-2"
+                        >
+                          <HiOutlineClipboardDocument className="w-5 h-5" />
+                          Copy link
+                        </button>
+                      </div>
+                      <p className="text-xs text-muted mt-3">
+                        This is the meeting link used for the session.
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             </section>
@@ -147,32 +175,46 @@ export default function MeetingRoomPage({ params }) {
                   </div>
 
                   <div className="flex flex-col gap-3 mt-5">
-                    <a
-                      href={slot.meetLink || slot.calendarHtmlLink || joinUrl}
-                      target={
-                        slot.meetLink || slot.calendarHtmlLink
-                          ? '_blank'
-                          : undefined
-                      }
-                      rel={
-                        slot.meetLink || slot.calendarHtmlLink
-                          ? 'noopener noreferrer'
-                          : undefined
-                      }
-                      className="btn btn-primary gap-2"
-                    >
-                      <HiOutlineCalendarDays className="w-5 h-5" />
-                      Join Google Meet
-                    </a>
-                    <a
-                      href={getGoogleCalendarUrl(slot)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-ghost gap-2"
-                    >
-                      <HiOutlineLink className="w-5 h-5" />
-                      Open calendar draft
-                    </a>
+                    {!isCompleted && (
+                      <a
+                        href={slot.meetLink || slot.calendarHtmlLink || joinUrl}
+                        target={
+                          slot.meetLink || slot.calendarHtmlLink
+                            ? '_blank'
+                            : undefined
+                        }
+                        rel={
+                          slot.meetLink || slot.calendarHtmlLink
+                            ? 'noopener noreferrer'
+                            : undefined
+                        }
+                        className="btn btn-primary gap-2"
+                      >
+                        <HiOutlineCalendarDays className="w-5 h-5" />
+                        Join meeting
+                      </a>
+                    )}
+                    {user?.role === 'teacher' && slot.status === 'booked' ? (
+                      <button
+                        type="button"
+                        onClick={handleCompleteMeeting}
+                        className="btn btn-error gap-2"
+                      >
+                        <HiOutlineCheckBadge className="w-5 h-5" />
+                        Complete meeting
+                      </button>
+                    ) : null}
+                    {!isCompleted && (
+                      <a
+                        href={getGoogleCalendarUrl(slot)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-ghost gap-2"
+                      >
+                        <HiOutlineLink className="w-5 h-5" />
+                        Open calendar draft
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>

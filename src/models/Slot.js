@@ -14,7 +14,7 @@ const SlotSchema = new Schema(
     endTime: { type: String, required: true },
     status: {
       type: String,
-      enum: ['available', 'booked'],
+      enum: ['available', 'booked', 'completed'],
       default: 'available',
     },
     teacherId: { type: String, required: true, index: true },
@@ -26,6 +26,7 @@ const SlotSchema = new Schema(
     studentNotes: { type: String, default: '', trim: true },
     cancellationRequested: { type: Boolean, default: false },
     cancellationRequestedAt: { type: Date, default: null },
+    completedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );

@@ -26,6 +26,13 @@ function addMinutes(time, minutes) {
   return `${String(nh).padStart(2, '0')}:${String(nm).padStart(2, '0')}`;
 }
 
+function getCurrentTime() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+}
+
 export function AddSlotForm({ onCreated }) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -37,10 +44,24 @@ export function AddSlotForm({ onCreated }) {
   const [submitting, setSubmitting] = useState(false);
 
   const endTime = useMemo(() => addMinutes(startTime, 15), [startTime]);
+  const today = todayISO();
+  const currentTime = getCurrentTime();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) return;
+
+    // Validate that date is not in the past
+    if (date < today) {
+      toast('Cannot create a slot in the past.', 'error');
+      return;
+    }
+
+    // Validate that if date is today, time is not in the past
+    if (date === today && startTime <= currentTime) {
+      toast('Start time must be in the future.', 'error');
+      return;
+    }
 
     const startMs = new Date(`${date}T${startTime}:00`).getTime();
     if (Number.isNaN(startMs)) {
@@ -131,6 +152,7 @@ export function AddSlotForm({ onCreated }) {
             <input
               type="date"
               required
+              min={today}
               value={date}
               onChange={(e) => setDate(e.target.value)}
               className="input input-bordered bg-base-300 border-base-300 focus:border-primary"
