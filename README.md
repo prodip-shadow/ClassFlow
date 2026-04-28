@@ -11,66 +11,70 @@
 <b>ClassFlow</b> is a clean and fully dynamic web application designed to simplify class scheduling between teachers and students. Built with a modern <b>Black, White & Orange</b> color palette using <b>DaisyUI</b>, the platform allows teachers to manage time slots and students to book them — all without page reloads.
 </p>
 
-<p align="center">
-  <img src="https://i.ibb.co.com/FvK7XJJ/2026-04-27-214305-hyprshot.png" alt="ClassFlow Screenshot 1" width="100%">
-</p>
-<!-- <p align="center">
-  <img src="https://i.ibb.co.com/fdmLJKpw/2026-04-27-214352-hyprshot.png" alt="ClassFlow Screenshot 2" width="100%">
-</p>
-<p align="center">
-  <img src="https://i.ibb.co.com/7x5wZJhP/2026-04-27-214405-hyprshot.png" alt="ClassFlow Screenshot 3" width="100%">
-</p>
-<p align="center">
-  <img src="https://i.ibb.co.com/0TdRycc/2026-04-27-214417-hyprshot.png" alt="ClassFlow Screenshot 4" width="100%">
-</p> -->
-
 ---
 
-<h2>👥 User Roles & Permissions</h2>
+<h2>📸 Application Overviews</h2>
 
-<h3>👨‍🏫 Teacher Dashboard</h3>
-<ul>
-  <li><b>Dashboard Stats:</b> View total slots created, total booked, and total available at a glance.</li>
-  <li><b>Slot Management:</b> Add new time slots with date and start time — end time auto-calculated as +15 minutes.</li>
-  <li><b>Slot Rules:</b> Cannot add overlapping slots or past time slots.</li>
-  <li><b>Google Meet Links:</b> Real Meet links are created when Google Calendar API credentials are configured.</li>
-  <li><b>Profile Update:</b> Update name and profile photo via ImageBB API.</li>
-</ul>
-
-<h3>👨‍🎓 Student Dashboard</h3>
-<ul>
-  <li><b>Browse Slots:</b> View all available slots in a clean card grid.</li>
-  <li><b>Instant Booking:</b> Book a slot with one click — UI updates instantly without page reload.</li>
-  <li><b>Booking History:</b> View personal booked slots in a separate section.</li>
-  <li><b>Profile Update:</b> Update name and profile photo via ImageBB API.</li>
-</ul>
-
----
-
-<h2>💻 Tech Stack & Dependencies</h2>
-
-<h3>🌐 Frontend Technologies</h3>
-<p>
-  <img src="https://skillicons.dev/icons?i=nextjs,tailwind,react,js" />
+<h3>🔐 Authentication & Landing</h3>
+<p align="center">
+  <img src="https://i.ibb.co.com/BHkbH81h/2026-04-28-133127-hyprshot.png" alt="Login Landing Page" width="100%">
 </p>
 <ul>
-  <li><b>Framework:</b> Next.js 15 (App Router, JSX)</li>
-  <li><b>Styling:</b> Tailwind CSS</li>
-  <li><b>UI Components:</b> DaisyUI (custom "classflow" theme)</li>
-  <li><b>Animations:</b> GSAP</li>
-  <li><b>Icons:</b> React Icons</li>
-  <li><b>Runtime:</b> Bun</li>
+  <li>Upon visiting the Home page, users are greeted with a smooth animated Login/Register screen.</li>
+  <li>New users can easily sign up by choosing either the Teacher or Student role.</li>
+  <li>Features GSAP animations for a premium landing page experience.</li>
 </ul>
 
-<h3>⚙️ Backend & Database</h3>
-<p>
-  <img src="https://skillicons.dev/icons?i=mongodb,firebase,vercel" />
+<h3>👨‍🏫 Teacher Dashboard Overview</h3>
+<p align="center">
+  <img src="https://i.ibb.co.com/xK6xqDmH/2026-04-28-133142-hyprshot.png" alt="Teacher Dashboard Overview" width="100%">
 </p>
 <ul>
-  <li><b>Database:</b> MongoDB (Mongoose)</li>
-  <li><b>Authentication:</b> Firebase Auth (Email/Password)</li>
-  <li><b>Image Upload:</b> ImageBB API</li>
-  <li><b>Deployment:</b> Vercel</li>
+  <li>Provides a quick glance at total slots, available slots, and booked slots.</li>
+  <li>Quick navigation links to the Slot Add page, Management page, and Profile page.</li>
+  <li>Features a responsive sidebar for desktop and a bottom navigation bar for mobile users.</li>
+</ul>
+
+<h3>➕ Slot Creation (Teacher)</h3>
+<p align="center">
+  <img src="https://i.ibb.co.com/1tkZ1KSn/2026-04-28-133154-hyprshot.png" alt="Teacher Add Slot" width="100%">
+</p>
+<ul>
+  <li>Teachers can create 15-minute class slots effortlessly.</li>
+  <li><b>Smart Validation:</b> Prevents creating slots for past dates or times.</li>
+  <li><b>Overlap Protection:</b> Ensures no two slots conflict with each other.</li>
+  <li>The end time is automatically calculated and set to 15 minutes after the start time.</li>
+</ul>
+
+<h3>📋 Slot Management & Bookings</h3>
+<p align="center">
+  <img src="https://i.ibb.co.com/zwdWGDg/2026-04-28-133204-hyprshot.png" alt="Teacher Booking Slot" width="100%">
+</p>
+<ul>
+  <li>Lists all created slots where teachers can manage individual or bulk deletions.</li>
+  <li>Includes a custom confirmation dialog for safe data management.</li>
+  <li>Teachers can approve cancellation requests sent by students directly from this view.</li>
+</ul>
+
+<h3>👨‍🎓 Student Dashboard & Booking</h3>
+<p align="center">
+  <img src="https://i.ibb.co.com/TD08pWjB/2026-04-28-133516-hyprshot.png" alt="Student Dashboard Overview" width="100%">
+</p>
+<ul>
+  <li>Students can see their booking stats, available slots, and info on their next upcoming class.</li>
+  <li>The Available Slots page allows for one-click booking with the option to add personal notes.</li>
+  <li>Real-time UI updates ensure the booking is reflected instantly without a page refresh.</li>
+</ul>
+
+<h3>🗓️ Booked Classes & Integrated Meetings</h3>
+<p align="center">
+  <img src="https://i.ibb.co.com/9641VQH/2026-04-28-133531-hyprshot.png" alt="Student Booked Slot" width="100%">
+</p>
+<ul>
+  <li><b>Automated Meetings:</b> Once a slot is booked, a unique meeting link is automatically generated.</li>
+  <li><b>Easy Access:</b> A dedicated "Join Meeting" button appears for both Teacher and Student dashboards.</li>
+  <li><b>Seamless Flow:</b> Both parties can join the session directly from their respective booked classes list.</li>
+  <li>Students can send cancellation requests, with the status clearly indicated on the UI.</li>
 </ul>
 
 ---
@@ -84,29 +88,60 @@
   </tr>
   <tr>
     <td><b>Role-Based Access</b></td>
-    <td>Distinct dashboards for Teachers and Students with protected routes.</td>
+    <td>Protected routes and distinct dashboards for Teachers and Students.</td>
   </tr>
   <tr>
-    <td><b>Smart Slot System</b></td>
-    <td>15-minute slots with overlap detection and past-time validation.</td>
+    <td><b>Smart Scheduling</b></td>
+    <td>15-minute slots with built-in overlap detection and past-time validation.</td>
   </tr>
   <tr>
-    <td><b>Instant Booking</b></td>
-    <td>Slot booking updates the UI dynamically — no page reload required.</td>
+    <td><b>Meeting System</b></td>
+    <td><b>Automated meeting link generation</b> with a "Join Meeting" flow for both roles.</td>
   </tr>
   <tr>
-    <td><b>Profile Image Upload</b></td>
-    <td>Upload and update profile photos using the ImageBB API.</td>
+    <td><b>Instant UI Feedback</b></td>
+    <td>Dynamic updates using Toast notifications, loading spinners, and modal confirmations.</td>
   </tr>
   <tr>
-    <td><b>DaisyUI Theme</b></td>
-    <td>Custom black, white, and orange theme applied globally via CSS variables.</td>
+    <td><b>Profile Management</b></td>
+    <td>Update name and profile photos with ease via ImageBB API integration.</td>
   </tr>
   <tr>
-    <td><b>GSAP Animations</b></td>
-    <td>Smooth, subtle animations on page load and slot card rendering.</td>
+    <td><b>Google Calendar</b></td>
+    <td>Option to sync bookings directly with Google Calendar for better organization.</td>
+  </tr>
+  <tr>
+    <td><b>Responsive Design</b></td>
+    <td>Fully optimized for mobile with a custom bottom navigation system.</td>
   </tr>
 </table>
+
+---
+
+<h2>💻 Tech Stack & Dependencies</h2>
+
+<h3>🌐 Frontend Technologies</h3>
+<p>
+  <img src="https://skillicons.dev/icons?i=nextjs,tailwind,react,js" />
+</p>
+<ul>
+  <li><b>Framework:</b> Next.js 15 (App Router)</li>
+  <li><b>Styling:</b> Tailwind CSS & DaisyUI (Custom "ClassFlow" Theme)</li>
+  <li><b>Animations:</b> GSAP (GreenSock Animation Platform)</li>
+  <li><b>Icons:</b> React Icons</li>
+  <li><b>Runtime:</b> Bun</li>
+</ul>
+
+<h3>⚙️ Backend & Database</h3>
+<p>
+  <img src="https://skillicons.dev/icons?i=mongodb,firebase,vercel" />
+</p>
+<ul>
+  <li><b>Database:</b> MongoDB (Mongoose ODM)</li>
+  <li><b>Authentication:</b> Firebase Auth (Email/Password)</li>
+  <li><b>Image Upload:</b> ImageBB API</li>
+  <li><b>Deployment:</b> Vercel</li>
+</ul>
 
 ---
 
@@ -122,12 +157,12 @@
   <li>Install dependencies using Bun:
     <pre>bun install</pre>
   </li>
-  <li>Configure your <code>.env.local</code> file with:
+  <li>Configure your <code>.env</code> file with:
     <ul>
       <li>MongoDB URI</li>
       <li>Firebase Config Keys</li>
       <li>ImageBB API Key</li>
-      <li>Google Calendar service account email, private key, and calendar ID</li>
+      <li>Google Calendar credentials</li>
     </ul>
   </li>
   <li>Start the development server:
@@ -147,13 +182,13 @@
   </tr>
   <tr>
     <td>👨‍🏫 Teacher</td>
-    <td>teacher@classflow.com</td>
-    <td>Teacher@123</td>
+    <td>teacher@gmail.com</td>
+    <td>Password</td>
   </tr>
   <tr>
     <td>👨‍🎓 Student</td>
-    <td>student@classflow.com</td>
-    <td>Student@123</td>
+    <td>student@gmail.com</td>
+    <td>Password</td>
   </tr>
 </table>
 
