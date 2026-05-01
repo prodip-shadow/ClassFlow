@@ -14,7 +14,6 @@ export default async function HomePage() {
       redirect('/teacher/dashboard');
     }
 
-    if (session?.role === 'student') {
       redirect('/student/dashboard');
     }
   }
